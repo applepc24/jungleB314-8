@@ -40,6 +40,10 @@ def login():
 
     user = users_collection.find_one({'id': id})
 
+    if not user:
+        print("[로그인 실패] 사용자 없음")
+        return render_template('login.html', error="아이디 또는 비밀번호가 틀렸습니다.")
+
     if user and user['pw'] == pw:
         user_id_str = str(user['_id'])
         token = create_access_token(identity=user_id_str, expires_delta=timedelta(minutes=30))
@@ -63,6 +67,8 @@ def signup():
     pw_confirm = request.form.get('pw_confirm')
     nickname = request.form.get('nickname')
 
+    print(f"[회원가입 요청] id: {id}, pw: {pw}, pw_confirm: {pw_confirm}, nickname: {nickname}")
+
     # 필수 입력값 검사
     if not id or not pw or not pw_confirm or not nickname:
         return jsonify({'msg': '모든 필드를 입력해야 합니다.'}), 400
@@ -77,12 +83,19 @@ def signup():
         return jsonify({'msg': '이미 존재하는 사용자입니다.'}), 400
     
     # 사용자 저장
-    users_collection.insert_one({
-        'id': id,
-        'pw': pw,
-        'nickname': nickname
-    })
-    return jsonify({'msg': '회원가입 성공!'})
+    try:
+        result = users_collection.insert_one({
+            'id': id,
+            'pw': pw,
+            'nickname': nickname
+        })
+        print(f"[회원가입 성공] inserted_id: {result.inserted_id}")
+
+        return jsonify({'msg': '회원가입 성공!'})
+    
+    except Exception as e:
+        print(f"[회원가입 실패] DB 오류: {e}")
+        return jsonify({'msg': '서버 오류 발생'}), 500
 
 # 메인 페이지 라우팅 (JWT 필요)
 @app.route('/main', methods=['GET'])
@@ -98,10 +111,12 @@ def main_page():
     nickname = user['nickname']
     return render_template('main.html', user=user['id'], nickname=nickname)
 
-# 로그아웃 라우팅
+# ✅ 로그아웃 (쿠키에서 JWT 삭제)
 @app.route('/logout', methods=['GET'])
 def logout():
-    return redirect(url_for('login_page'))
+    response = make_response(redirect(url_for('login_page')))
+    response.delete_cookie('access_token', path='/')  # 경로 명시적으로 삭제
+    return response
 
 # 게시판 라우팅 (JWT 필요)
 @app.route('/board/<category>', methods=['GET'])
