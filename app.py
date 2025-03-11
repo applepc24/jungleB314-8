@@ -1,21 +1,25 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template, request, jsonify, redirect, url_for, make_response
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_cors import CORS
+from pymongo import MongoClient
+from bson.objectid import ObjectId
+from config import * 
+
+client = MongoClient('mongodb://localhost:27017')  # 또는 Atlas URI
+db = client['jungle8_63']  # DB 이름
+users_collection = db['users'] 
 
 app = Flask(__name__)
-app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'  # JWT 시크릿 키 설정
+
+app.config['JWT_SECRET_KEY'] = JWT_SECRET_KEY
+app.config['JWT_TOKEN_LOCATION'] = JWT_TOKEN_LOCATION
+app.config['JWT_ACCESS_COOKIE_NAME'] = JWT_ACCESS_COOKIE_NAME
+app.config['JWT_COOKIE_CSRF_PROTECT'] = JWT_COOKIE_CSRF_PROTECT
+
 jwt = JWTManager(app)
 
 # CORS 설정 추가
 CORS(app)
-
-# 테스트 사용자
-users = {
-    '123': {
-        'pw': '123',
-        'nickname': 'test'
-    }
-}
 
 # 루트에서 로그인 페이지로 리디렉션
 @app.route('/')
@@ -29,17 +33,23 @@ def login_page():
 
 # 로그인 처리 (POST)
 @app.route('/login', methods=['POST'])
+
 def login():
     id = request.form.get('id')
     pw = request.form.get('pw')
 
-    if id in users and users[id]['pw'] == pw:
-        token = create_access_token(identity=id)  # JWT 토큰 생성
-        print(token);
-        return jsonify(access_token=token)  # 토큰 반환
-    else:
-        return jsonify({'msg': '로그인 실패'}), 401
+    user = users_collection.find_one({'id': id})
 
+    if user and user['pw'] == pw:
+        user_id_str = str(user['_id'])
+        token = create_access_token(identity=user_id_str, expires_delta=timedelta(minutes=30))
+
+        response = make_response(redirect(url_for('main_page')))
+        response.set_cookie('access_token', token, httponly=True, secure=False)
+
+        return response
+
+    return render_template('login.html', error="아이디 또는 비밀번호가 틀렸습니다.")
 # 회원가입 페이지 렌더링 (GET)
 @app.route('/signup', methods=['GET'])
 def signup_page():
@@ -57,39 +67,36 @@ def signup():
     if not id or not pw or not pw_confirm or not nickname:
         return jsonify({'msg': '모든 필드를 입력해야 합니다.'}), 400
     
-    # ID 중복 검사
-    if id in users:
-        return jsonify({'msg': '이미 존재하는 사용자입니다.'}), 400
-    
-    # 비밀번호 일치 검사
     if pw != pw_confirm:
         return jsonify({'msg': '비밀번호가 일치하지 않습니다.'}), 400
     
+    # ✅ ID 중복 검사 (MongoDB에서 검사)
+    existing_user = users_collection.find_one({'id': id})
+
+    if existing_user:
+        return jsonify({'msg': '이미 존재하는 사용자입니다.'}), 400
+    
     # 사용자 저장
-    users[id] = {'pw': pw, 'nickname': nickname}
+    users_collection.insert_one({
+        'id': id,
+        'pw': pw,
+        'nickname': nickname
+    })
     return jsonify({'msg': '회원가입 성공!'})
-
-# 대시보드 렌더링 (JWT 필요)
-@app.route('/dashboard', methods=['GET'])
-@jwt_required()
-def dashboard():
-    token = request.headers.get('Authorization')
-    print(f"Authorization 헤더 값: {token}")  # 디버깅용 출력 추가
-
-    current_user = get_jwt_identity()
-    nickname = users.get(current_user, {}).get('nickname', '알 수 없음')
-    return render_template('dashboard.html', user=current_user, nickname=nickname)
 
 # 메인 페이지 라우팅 (JWT 필요)
 @app.route('/main', methods=['GET'])
-@jwt_required()
+@jwt_required(locations=["cookies"])
 def main_page():
-    token = request.headers.get('Authorization')
-    print(f"Authorization 헤더 값: {token}")  # 디버깅용 출력 추가
-    
-    current_user = get_jwt_identity()
-    nickname = users.get(current_user, {}).get('nickname', '알 수 없음')
-    return render_template('main.html', user=current_user, nickname=nickname)
+    user_id = get_jwt_identity()
+
+    user = users_collection.find_one({'_id': ObjectId(user_id)})
+
+    if not user:
+        return redirect(url_for('login_page'))
+
+    nickname = user['nickname']
+    return render_template('main.html', user=user['id'], nickname=nickname)
 
 # 로그아웃 라우팅
 @app.route('/logout', methods=['GET'])

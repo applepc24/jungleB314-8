@@ -1,44 +1,21 @@
-{% extends 'base.html' %}
-
-{% block title %}메인 페이지{% endblock %}
-
-{% block content %}
+{% extends 'base.html' %} {% block title %}메인 페이지{% endblock %} {% block
+content %}
 <div class="container has-text-centered">
-    <h1 class="title is-3">안녕하세요, {{ nickname }}님!</h1>
+  <h1 class="title is-3">안녕하세요, {{ nickname }}님!</h1>
 
-    <div class="buttons is-centered">
-        <a href="/board/free" class="button is-light is-rounded">자유 게시판</a>
-        <a href="/board/dev" class="button is-light is-rounded">개발 게시판</a>
-        <a href="/board/health" class="button is-light is-rounded">헬스 게시판</a>
-        <a href="/board/market" class="button is-light is-rounded">마켓 게시판</a>
-        <a href="/board/qna" class="button is-light is-rounded">질문 게시판</a>
-    </div>
+  <div class="buttons is-centered">
+    <a href="/board/free" class="button is-light is-rounded">자유 게시판</a>
+    <a href="/board/dev" class="button is-light is-rounded">개발 게시판</a>
+    <a href="/board/health" class="button is-light is-rounded">헬스 게시판</a>
+    <a href="/board/market" class="button is-light is-rounded">마켓 게시판</a>
+    <a href="/board/qna" class="button is-light is-rounded">질문 게시판</a>
+  </div>
 </div>
 
 <script>
-    $(document).ready(function() {
-    let token = localStorage.getItem('token');
-    console.log("불러온 토큰 상태:", token); // 토큰 상태 출력
-
-    if (token) {
-        $.ajax({
-            type: 'GET',
-            url: '/main',
-            beforeSend: function(xhr) {
-                xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-            },
-            success: function(response) {
-                console.log("메인 페이지 로딩 성공", response);
-            },
-            error: function(response) {
-                console.error("메인 페이지 로딩 실패", response);
-            }
-        });
-    } else {
-        alert('로그인이 필요합니다.');
-        window.location.href = '/login';
-    }
-});
-
+  $(document).ready(function () {
+    console.log("메인 페이지 진입 완료!");
+    // window.location.href = "/main";
+  });
 </script>
 {% endblock %}
