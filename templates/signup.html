@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css">
+</head>
+<body>
+
+<section class="hero is-fullheight is-light">
+    <div class="hero-body">
+        <div class="container has-text-centered">
+            <div class="box" style="max-width: 400px; margin: auto;">
+                <h2 class="title is-4">회원가입</h2>
+
+                <form id="signup-form">
+                    <!-- ID 입력 -->
+                    <div class="field is-flex is-align-items-center">
+                        <label class="label" style="width: 80px;">ID</label>
+                        <div class="control is-expanded">
+                            <input class="input" type="text" id="signup-id" placeholder="ID 입력" required>
+                        </div>
+                    </div>
+
+                    <!-- PW 입력 -->
+                    <div class="field is-flex is-align-items-center">
+                        <label class="label" style="width: 80px;">PW</label>
+                        <div class="control is-expanded">
+                            <input class="input" type="password" id="signup-pw" placeholder="비밀번호 입력" required>
+                        </div>
+                    </div>
+
+                    <!-- PW 확인 -->
+                    <div class="field is-flex is-align-items-center">
+                        <label class="label" style="width: 80px;">PW 확인</label>
+                        <div class="control is-expanded">
+                            <input class="input" type="password" id="signup-pw-confirm" placeholder="비밀번호 확인" required>
+                        </div>
+                    </div>
+
+                    <!-- 닉네임 입력 -->
+                    <div class="field is-flex is-align-items-center">
+                        <label class="label" style="width: 80px;">닉네임</label>
+                        <div class="control is-expanded">
+                            <input class="input" type="text" id="signup-nickname" placeholder="닉네임 입력" required>
+                        </div>
+                    </div>
+
+                    <!-- 회원가입 버튼 -->
+                    <div class="field">
+                        <button class="button is-success is-fullwidth">회원가입</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- jQuery 추가 -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    $('#signup-form').on('submit', function(e) {
+        e.preventDefault();
+
+        let id = $('#signup-id').val();
+        let pw = $('#signup-pw').val();
+        let pwConfirm = $('#signup-pw-confirm').val();
+        let nickname = $('#signup-nickname').val();
+
+        // 비밀번호 일치 검사
+        if (pw !== pwConfirm) {
+            alert('비밀번호가 일치하지 않습니다.');
+            return;
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '/signup',
+            data: { id: id, pw: pw, pw_confirm: pwConfirm, nickname: nickname },
+            success: function(response) {
+                alert(response.msg);
+                window.location.href = '/login'; // 회원가입 성공 시 로그인 페이지로 이동
+            },
+            error: function(response) {
+                alert(response.responseJSON.msg); // 실패 시 오류 메시지 출력
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

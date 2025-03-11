@@ -1,0 +1,21 @@
+<nav class="navbar is-light">
+    <div class="container">
+        <div class="navbar-brand">
+            <!-- 로고 추가 -->
+            <a class="navbar-item" href="/main">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="로고" style="height: 40px;">
+            </a>
+        </div>
+
+        <div class="navbar-end">
+            {% if request.path == '/login' %}
+                <!-- 로그인 페이지에서는 회원가입 버튼만 보이게 -->
+                <a href="/signup" class="navbar-item">회원가입</a>
+            {% else %}
+                <!-- 로그인 상태에서는 마이페이지와 로그아웃 버튼 표시 -->
+                <a href="/mypage" class="navbar-item">마이페이지</a>
+                <a href="/logout" class="navbar-item">로그아웃</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>

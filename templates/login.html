@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}로그인{% endblock %}
+
+{% block content %}
+<div class="container">
+    <form id="login-form">
+        <div class="field">
+            <label class="label">ID</label>
+            <div class="control">
+                <input class="input" type="text" id="id" placeholder="ID 입력" required>
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label">비밀번호</label>
+            <div class="control">
+                <input class="input" type="password" id="pw" placeholder="비밀번호 입력" required>
+            </div>
+        </div>
+
+        <div class="field">
+            <button class="button is-success is-fullwidth">로그인</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    $('#login-form').on('submit', function(e) {
+        e.preventDefault();
+
+        let id = $('#id').val();
+        let pw = $('#pw').val();
+
+        $.ajax({
+            type: 'POST',
+            url: '/login',
+            data: { id: id, pw: pw},
+            success: function(response) {
+                alert("로그인성공"+response.access_token);
+                localStorage.setItem('token', response.access_token); // JWT 저장
+                window.location.href = '/main';
+            },
+            error: function(response) {
+                alert(response.responseJSON.msg);
+            }
+        });
+    });
+</script>
+{% endblock %}
