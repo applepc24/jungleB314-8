@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, make_response
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask import Flask
+from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from pymongo import MongoClient
+<<<<<<< HEAD
 from bson import ObjectId
 from datetime import timedelta
 
@@ -9,16 +10,34 @@ client = MongoClient('mongodb://localhost:27017')  # 또는 Atlas URI
 db = client['jungle8_63']  # DB 이름
 users_collection = db['users']
 posts_collection = db['posts']  # ✅ 게시글 저장하는 컬렉션 추가
+=======
+from config import *
+>>>>>>> 2810ec60bca9b4dd554f25269359a83e07ca4e7a
 
+# 앱 생성
 app = Flask(__name__)
 
+<<<<<<< HEAD
 app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
 app.config['JWT_ACCESS_COOKIE_NAME'] = 'access_token'
 app.config['JWT_COOKIE_CSRF_PROTECT'] = False
+=======
+# 앱 설정
+app.config['JWT_SECRET_KEY'] = JWT_SECRET_KEY
+app.config['JWT_TOKEN_LOCATION'] = JWT_TOKEN_LOCATION
+app.config['JWT_ACCESS_COOKIE_NAME'] = JWT_ACCESS_COOKIE_NAME
+app.config['JWT_COOKIE_CSRF_PROTECT'] = JWT_COOKIE_CSRF_PROTECT
+>>>>>>> 2810ec60bca9b4dd554f25269359a83e07ca4e7a
 
+# DB 연결
+client = MongoClient('mongodb://localhost:27017')
+db = client['jungle8_63']
+
+# JWT 등록
 jwt = JWTManager(app)
 
+<<<<<<< HEAD
 CORS(app)
 
 @app.route('/')
@@ -205,6 +224,17 @@ def logout():
     response = make_response(redirect(url_for('login_page')))
     response.delete_cookie('access_token', path="/")
     return response
+=======
+# CORS 등록
+CORS(app)
+
+# 블루프린트 등록
+from routes import auth_bp, main_bp, mypage_bp
+
+app.register_blueprint(auth_bp)
+app.register_blueprint(main_bp)
+app.register_blueprint(mypage_bp)
+>>>>>>> 2810ec60bca9b4dd554f25269359a83e07ca4e7a
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)

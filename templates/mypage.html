@@ -31,18 +31,25 @@
         {% if posts %}
         <ul>
             {% for post in posts %}
-            <li>
+<<<<<<< HEAD
+            <!-- <li>
                 <a href="{{ url_for('post_detail', category=post.category, post_id=post._id) }}">
                     <strong>{{ post.title }}</strong>
                 </a>
-            </li>
+            </li> -->
+=======
+            <li><strong>{{ post.title }}</strong>: {{ post.content }}</li>
+>>>>>>> 2810ec60bca9b4dd554f25269359a83e07ca4e7a
             {% endfor %}
         </ul>
         {% else %}
         <p>작성한 글이 없습니다.</p>
         {% endif %}
     </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2810ec60bca9b4dd554f25269359a83e07ca4e7a
 </div>
 
 <script>
