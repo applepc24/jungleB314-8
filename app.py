@@ -24,11 +24,12 @@ jwt = JWTManager(app)
 CORS(app)
 
 # 블루프린트 등록
-from routes import auth_bp, main_bp, mypage_bp
+from routes import auth_bp, main_bp, mypage_bp, board_bp
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(main_bp)
 app.register_blueprint(mypage_bp)
+app.register_blueprint(board_bp)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)
