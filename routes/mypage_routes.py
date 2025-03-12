@@ -19,7 +19,15 @@ def mypage():
 
     posts = posts_collection.find({"author_id": user_id})
 
-    posts_list = [{"title": post["title"], "content": post["content"]} for post in posts]
+    posts_list = [
+    {
+        "title": post["title"],
+        "content": post["content"],
+        "category": post.get("category", ""),   # category 필드가 없다면 빈 값 처리
+        "_id": str(post["_id"])  # ObjectId를 문자열로 변환 (URL에 안전하게 넘기기 위해!)
+    }
+    for post in posts
+]
 
     return render_template('mypage.html', user=user, posts=posts_list)
 

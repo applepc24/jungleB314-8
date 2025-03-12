@@ -33,7 +33,7 @@
             {% for post in posts %}
 
             <li>
-                <a href="{{ url_for('post_detail', category=post.category, post_id=post._id) }}">
+                <a href="{{ url_for('post.post_detail', category=post.category, post_id=post._id) }}">
                     <strong>{{ post.title }}</strong>
                 </a>
             </li>

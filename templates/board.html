@@ -30,9 +30,9 @@
   <nav class="pagination is-centered" role="navigation" aria-label="pagination">
     {% if current_page > 1 %}
       {% if search_mode == 'global' %}
-      <a class="pagination-previous" href="/search?keyword={{ keyword }}&page={{ current_page - 1 }}">이전</a>
+        <a class="pagination-previous" href="/search?keyword={{ keyword }}&page={{ current_page - 1 }}">이전</a>
       {% else %}
-      <a class="pagination-previous" href="?page={{ current_page - 1 }}{% if keyword %}&keyword={{ keyword }}{% endif %}">이전</a>
+        <a class="pagination-previous" href="?page={{ current_page - 1 }}{% if keyword %}&keyword={{ keyword }}{% endif %}">이전</a>
       {% endif %}
     {% else %}
       <a class="pagination-previous" disabled>이전</a>
@@ -40,9 +40,9 @@
 
     {% if current_page < total_pages %}
       {% if search_mode == 'global' %}
-      <a class="pagination-next" href="/search?keyword={{ keyword }}&page={{ current_page + 1 }}">다음</a>
+        <a class="pagination-next" href="/search?keyword={{ keyword }}&page={{ current_page + 1 }}">다음</a>
       {% else %}
-      <a class="pagination-next" href="?page={{ current_page + 1 }}{% if keyword %}&keyword={{ keyword }}{% endif %}">다음</a>
+        <a class="pagination-next" href="?page={{ current_page + 1 }}{% if keyword %}&keyword={{ keyword }}{% endif %}">다음</a>
       {% endif %}
     {% else %}
       <a class="pagination-next" disabled>다음</a>
@@ -51,30 +51,21 @@
     <ul class="pagination-list">
       {% for page_num in page_range %}
         {% if search_mode == 'global' %}
-        <li><a href="/search?keyword={{ keyword }}&page={{ page_num }}" class="pagination-link {% if page_num == current_page %} is-current {% endif %}">{{ page_num }}</a></li>
+          <li>
+            <a href="/search?keyword={{ keyword }}&page={{ page_num }}" class="pagination-link {% if page_num == current_page %} is-current {% endif %}">
+              {{ page_num }}
+            </a>
+          </li>
         {% else %}
-        <li><a href="?page={{ page_num }}{% if keyword %}&keyword={{ keyword }}{% endif %}" class="pagination-link {% if page_num == current_page %} is-current {% endif %}">{{ page_num }}</a></li>
+          <li>
+            <a href="?page={{ page_num }}{% if keyword %}&keyword={{ keyword }}{% endif %}" class="pagination-link {% if page_num == current_page %} is-current {% endif %}">
+              {{ page_num }}
+            </a>
+          </li>
         {% endif %}
       {% endfor %}
     </ul>
   </nav>
-
-        {% if current_page < total_pages %} <a class="pagination-next" href="?page={{ current_page + 1 }}">다음</a>
-            {% else %}
-            <a class="pagination-next" disabled>다음</a>
-            {% endif %}
-
-            <ul class="pagination-list">
-                {% for page_num in page_range %}
-                <li>
-                    <a href="?page={{ page_num }}"
-                        class="pagination-link {% if page_num == current_page %} is-current {% endif %}">
-                        {{ page_num }}
-                    </a>
-                </li>
-                {% endfor %}
-            </ul>
-    </nav>
 
   <!-- 검색창 및 글쓰기 -->
   <div class="columns is-centered mt-4 mb-4">
@@ -82,19 +73,20 @@
       <div class="field has-addons is-centered" style="display: flex; justify-content: center; gap: 10px;">
         <div class="control is-expanded">
           {% if search_mode == 'global' %}
-          <input id="global-search-keyword" class="input is-small" type="text" placeholder="전체 게시글 검색" />
+            <input id="global-search-keyword" class="input is-small" type="text" placeholder="전체 게시글 검색" />
           {% else %}
-          <input id="category-search-keyword" class="input is-small" type="text" placeholder="카테고리 내 검색" />
+            <input id="category-search-keyword" class="input is-small" type="text" placeholder="카테고리 내 검색" />
           {% endif %}
         </div>
 
         <div class="control">
           {% if search_mode == 'global' %}
-          <button id="global-search-btn" class="button is-info is-small">검색</button>
+            <button id="global-search-btn" class="button is-info is-small">검색</button>
           {% else %}
-          <button id="category-search-btn" class="button is-info is-small">검색</button>
+            <button id="category-search-btn" class="button is-info is-small">검색</button>
           {% endif %}
         </div>
+
         {% if search_mode != 'global' %}
         <div class="control">
           <a href="/board/{{ category }}/write" class="button is-primary is-small">글쓰기</a>
