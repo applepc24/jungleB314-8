@@ -44,30 +44,47 @@ def write_post(category):
         'author_id': user_id,
         'nickname': nickname,
         'category': category,
-        'index': new_index
+        'index': new_index,
+        'views' : 0,
+        'likes' : 0
     }
+    posts_collection.insert_one(new_post)
 
-    # MongoDB에 삽입 및 성공 여부 체크
-    result = posts_collection.insert_one(new_post)
-    if not result.inserted_id:
-        flash("게시글 저장에 실패했습니다.")
-        return redirect(url_for('board.board', category=category))
+    return redirect(url_for('board', category=category))
 
-    flash("게시글이 성공적으로 작성되었습니다.")
-    return redirect(url_for('board.board', category=category))
+    # # MongoDB에 삽입 및 성공 여부 체크
+    # result = posts_collection.insert_one(new_post)
+    # if not result.inserted_id:
+    #     flash("게시글 저장에 실패했습니다.")
+    #     return redirect(url_for('board.board', category=category))
+
+    # flash("게시글이 성공적으로 작성되었습니다.")
+    # return redirect(url_for('board.board', category=category))
 
    # ✅ 게시글 상세보기 라우트
-@post_bp.route('/board/<category>/post/<post_id>', methods=['GET'])
+@post_bp.route('/board/<category>/post/<post_id>', methods=['GET'], endpoint="post_detail")
 @jwt_required(locations=["cookies"])
 def post_detail(category, post_id):
     user_id = get_jwt_identity()  # ✅ 이제 JWT 값이 보장됨
+    result = posts_collection.update_one({'_id': ObjectId(post_id)}, {"$inc": {"views": 1}})
+    
     post = posts_collection.find_one({'_id': ObjectId(post_id)})
+
 
     if not post:
         flash("게시글을 찾을 수 없습니다.")
         return redirect(url_for('board.board', category=category))
 
-    return render_template('post.html', post=post, category=category, user_id=user_id)
+    post = posts_collection.find_one({'_id': ObjectId(post_id)})
+
+    if post:
+        post['_id'] = str(post['_id'])  # ObjectId → 문자열 변환
+
+# post_routes.py (해당 뷰 함수 수정)
+    return render_template('post.html', post=post, category=category, user_id=user_id, post_id=str(post["_id"]))
+
+
+
 # 글 삭제
 @post_bp.route('/board/<category>/post/<post_id>/delete', methods=['POST'])
 @jwt_required(locations=["cookies"])
@@ -201,3 +218,61 @@ def delete_comment(category, post_id, comment_id):
         return jsonify({'msg': '댓글 삭제에 실패했습니다.'}), 500
 
     return jsonify({'msg': '댓글이 삭제되었습니다.'}), 200
+
+#조회수
+# @post_bp.route('/board/<category>/post/<post_id>', methods=['GET'])
+# def view_post(category, post_id):
+#     try:
+#         post_oid = ObjectId(post_id)  # ObjectId로 변환
+#     except:
+#         return redirect(url_for('board', category=category))
+
+#     post = posts_collection.find_one({'_id': post_oid})
+
+#     if not post:
+#         return redirect(url_for('board', category=category))
+
+#     # 조회수 증가
+#     update_result = posts_collection.update_one({'_id': post_oid}, {"$inc": {"views": 1}})
+
+
+#     # 업데이트된 데이터를 다시 불러오기
+#     post = posts_collection.find_one({'_id': post_oid})
+
+#     return render_template('post.html', post=post, category=category)
+
+@post_bp.route('/board/<category>/post/<post_id>/like', methods=['POST'])
+@jwt_required(locations=["cookies"])
+def like_post(category, post_id):
+    user_id = get_jwt_identity()
+
+    try:
+        post_oid = ObjectId(post_id)
+    except:
+        flash("잘못된 게시글 ID입니다.")
+        return redirect(url_for('post.post_detail', category=category, post_id=post_id))
+
+    post = posts_collection.find_one({'_id': post_oid})
+
+    if not post:
+        flash("게시글이 존재하지 않습니다.")
+        return redirect(url_for('board.board', category=category))
+
+    liked_users = post.get('liked_users', [])
+
+    if user_id in liked_users:
+        # 좋아요 취소
+        posts_collection.update_one({'_id': post_oid}, {
+            "$pull": {"liked_users": user_id},  # user_id 제거
+            "$inc": {"likes": -1}  # 좋아요 수 감소
+        })
+        flash("좋아요가 취소되었습니다.")
+    else:
+        # 좋아요 추가
+        posts_collection.update_one({'_id': post_oid}, {
+            "$addToSet": {"liked_users": user_id},  # 중복 방지하여 user_id 추가
+            "$inc": {"likes": 1}  # 좋아요 수 증가
+        })
+        flash("좋아요를 눌렀습니다.")
+
+    return redirect(url_for('post.post_detail', category=category, post_id=post_id))

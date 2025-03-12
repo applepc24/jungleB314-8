@@ -4,7 +4,7 @@ from bson.objectid import ObjectId
 
 board_bp = Blueprint('board', __name__, url_prefix='/board')
 
-# Mongo 연결 (다른 곳에서 클라이언트 만들어서 넘길 수도 있음)
+# Mongo 연결
 from models.post_model import posts_collection
 
 @board_bp.route('/<category>', methods=['GET'])
@@ -21,19 +21,21 @@ def board(category):
             {'content': {'$regex': keyword, '$options': 'i'}}
         ]
 
-    total_posts = posts_collection.count_documents(query)
+    total_posts = posts_collection.count_documents(query)  # ✅ 전체 게시글 개수
     total_pages = (total_posts // posts_per_page) + (1 if total_posts % posts_per_page > 0 else 0)
 
+    # ✅ 오래된 게시글이 1번이 되도록 오름차순 정렬
     posts = list(posts_collection.find(query)
-             .sort('created_at', -1)
+             .sort('created_at', 1)  # 오름차순 정렬 (오래된 글이 먼저)
              .skip((page - 1) * posts_per_page)
              .limit(posts_per_page))
 
-    for idx, post in enumerate(posts, start=(page - 1) * posts_per_page + 1):
+    # ✅ 인덱스를 전체 개수를 기준으로 역순으로 부여
+    latest_index = total_posts - ((page - 1) * posts_per_page)  # 가장 최신 글 번호 계산
+    for post in posts:
         post['_id'] = str(post['_id'])
-        post['index'] = idx
-
-    page_range = list(range(1, total_pages + 1))
+        post['index'] = latest_index  # 가장 최신 글부터 역순으로 인덱스 부여
+        latest_index -= 1  # 감소
 
     return render_template('board.html',
                            posts=posts,
@@ -41,5 +43,5 @@ def board(category):
                            total_pages=total_pages,
                            current_page=page,
                            page_range=list(range(1, total_pages + 1)),
-                           search_mode='category',  # ✅ 검색 여부 전달
+                           search_mode='category',
                            keyword=keyword)

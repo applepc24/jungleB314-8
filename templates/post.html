@@ -29,117 +29,124 @@
             <!-- 현재 로그인한 사용자가 작성자라면 수정/삭제 버튼 표시 -->
             {% if post.author_id|string == user_id %}
             <div style="display: flex; gap: 5px;">
-            <button class="button is-primary"
-                onclick="location.href=`{{ url_for('post.edit_post', category=category, post_id=post._id) }}`">수정</button>
-            <form action="{{ url_for('post.delete_post', category=category, post_id=post._id) }}" method="POST">
-                <button type="submit" class="button is-danger">삭제</button>
-            </form>
+                <button class="button is-primary"
+                    onclick="location.href=`{{ url_for('post.edit_post', category=category, post_id=post._id) }}`">수정</button>
+                <form action="{{ url_for('post.delete_post', category=category, post_id=post._id) }}" method="POST">
+                    <button type="submit" class="button is-danger">삭제</button>
+                </form>
             </div>
             {% endif %}
 
 
-            <button class="button" onclick="location.href=`{{ url_for('board.board', category=category) }}`">목록으로</button>
+            <button class="button"
+                onclick="location.href=`{{ url_for('board.board', category=category) }}`">목록으로</button>
+
 
         </div>
 
         <!-- 좋아요 & 조회수 -->
+        <!-- 좋아요 버튼 -->
         <div class="level">
             <div class="level-left">
-                <span class="icon">
-                    <i class="fas fa-heart"></i>
-                </span>
-                <span>{{ post.likes }}</span>
+                <form action="{{ url_for('post.like_post', category=category, post_id=post._id) }}" method="POST">
+                    <button type="submit" class="button is-light">
+                        <span class="icon">
+                            <i class="fas fa-heart">♥</i>
+                        </span>
+                        <span>{{ post.likes }}</span>
+                    </button>
+                </form>
             </div>
+
             <div class="level-right">
-                <span>조회수 {{ post.views }}</span>
+                <span>조회수: {{ post.views if post.views is not none else 0 }}</span>
             </div>
         </div>
-    </div>
 
-    <div class="box">
-        <!-- 댓글 입력 -->
-        <div class="field has-addons">
-            <div class="control is-expanded">
-                <input class="input" type="text" id="comment-input" placeholder="댓글을 입력하세요">
-            </div>
-            <div class="control">
-                <button class="button is-success" id="comment-btn">댓글 등록</button>
-            </div>
-        </div>
-    
-        <!-- ✅ 익명 체크박스 추가 -->
-        <div class="field">
-            <label class="checkbox">
-                <input type="checkbox" id="anonymous-checkbox"> 익명으로 작성
-            </label>
-        </div>
-    
-        <!-- 댓글 리스트 -->
-        {% for comment in post.comments %}
-        <div class="media">
-            <div class="media-content">
-                <p>
-                    <strong>{{ comment.nickname }}</strong>
-                    {{ comment.content }}
-                </p>
-            </div>
-            {% if comment.user_id == user_id %}
-            <div class="media-right">
-                <button class="button is-danger is-small" onclick="deleteComment('{{ comment._id }}')">삭제</button>
-            </div>
-            {% endif %}
-        </div>
-        {% endfor %}
-    </div>
-    
-    <!-- ✅ AJAX 코드 수정 -->
-    <script>
-       // 댓글 작성
-    $('#comment-btn').click(function() {
-        let content = $('#comment-input').val().trim();
-        // ✅ 명확히 true/false 값으로 변환
-        let isAnonymous = $('#anonymous-checkbox').is(':checked') ? 'true' : 'false';
 
-        if (!content) {
-            alert('댓글 내용을 입력해주세요.');
-            return;
-        }
+        <div class="box">
+            <!-- 댓글 입력 -->
+            <div class="field has-addons">
+                <div class="control is-expanded">
+                    <input class="input" type="text" id="comment-input" placeholder="댓글을 입력하세요">
+                </div>
+                <div class="control">
+                    <button class="button is-success" id="comment-btn">댓글 등록</button>
+                </div>
+            </div>
 
-        $.ajax({
-            type: 'POST',
-            url: `{{ url_for('post.add_comment', category=category, post_id=post._id) }}`,
-            data: {
-                content: content,
-                is_anonymous: isAnonymous  // ✅ 문자열 값으로 변환해서 보냄
-            },
-            success: function(response) {
-                alert(response.msg);
-                location.reload(); // 페이지 새로고침
-            },
-            error: function(xhr) {
-                alert(xhr.responseJSON.msg);
+            <!-- ✅ 익명 체크박스 추가 -->
+            <div class="field">
+                <label class="checkbox">
+                    <input type="checkbox" id="anonymous-checkbox"> 익명으로 작성
+                </label>
+            </div>
+
+            <!-- 댓글 리스트 -->
+            {% for comment in post.comments %}
+            <div class="media">
+                <div class="media-content">
+                    <p>
+                        <strong>{{ comment.nickname }}</strong>
+                        {{ comment.content }}
+                    </p>
+                </div>
+                {% if comment.user_id == user_id %}
+                <div class="media-right">
+                    <button class="button is-danger is-small" onclick="deleteComment('{{ comment._id }}')">삭제</button>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- ✅ AJAX 코드 수정 -->
+        <script>
+            // 댓글 작성
+            $('#comment-btn').click(function () {
+                let content = $('#comment-input').val().trim();
+                // ✅ 명확히 true/false 값으로 변환
+                let isAnonymous = $('#anonymous-checkbox').is(':checked') ? 'true' : 'false';
+
+                if (!content) {
+                    alert('댓글 내용을 입력해주세요.');
+                    return;
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: `{{ url_for('post.add_comment', category=category, post_id=post._id) }}`,
+                    data: {
+                        content: content,
+                        is_anonymous: isAnonymous  // ✅ 문자열 값으로 변환해서 보냄
+                    },
+                    success: function (response) {
+                        alert(response.msg);
+                        location.reload(); // 페이지 새로고침
+                    },
+                    error: function (xhr) {
+                        alert(xhr.responseJSON.msg);
+                    }
+                });
+            });
+
+            // 댓글 삭제
+            function deleteComment(commentId) {
+                if (!confirm('정말 삭제하시겠습니까?')) return;
+
+                $.ajax({
+                    type: 'POST',
+                    url: `{{ url_for('post.delete_comment', category=category, post_id=post._id, comment_id='COMMENT_ID') }}`.replace('COMMENT_ID', commentId),
+                    success: function (response) {
+                        alert(response.msg);
+                        location.reload(); // 페이지 새로고침
+                    },
+                    error: function (xhr) {
+                        alert(xhr.responseJSON.msg);
+                    }
+                });
             }
-        });
-    });
+        </script>
 
-    // 댓글 삭제
-    function deleteComment(commentId) {
-        if (!confirm('정말 삭제하시겠습니까?')) return;
-
-        $.ajax({
-            type: 'POST',
-            url: `{{ url_for('post.delete_comment', category=category, post_id=post._id, comment_id='COMMENT_ID') }}`.replace('COMMENT_ID', commentId),
-            success: function(response) {
-                alert(response.msg);
-                location.reload(); // 페이지 새로고침
-            },
-            error: function(xhr) {
-                alert(xhr.responseJSON.msg);
-            }
-        });
-    }
-    </script>
-    
-    
-</div>
-{% endblock %}
+    </div>
+    {% endblock %}
