@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}글쓰기{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="title">새 글 작성</h1>
+
+    <form action="/board/{{ category }}/write" method="POST">
+        <div class="field">
+            <label class="label">제목</label>
+            <div class="control">
+                <input class="input" type="text" name="title" placeholder="제목을 입력하세요" required>
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label">내용</label>
+            <div class="control">
+                <textarea class="textarea" name="content" placeholder="내용을 입력하세요" required></textarea>
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="checkbox">
+                <input type="checkbox" name="is_anonymous">
+                익명
+            </label>
+        </div>
+
+        <div class="control">
+            <button class="button is-primary" type="submit">등록</button>
+            <a href="/board/{{ category }}" class="button is-light">취소</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

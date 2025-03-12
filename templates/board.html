@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}게시판{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- 게시글 목록 -->
+    <div id="post-list">
+        {% for post in posts %}
+        <div class="box post-item" onclick="location.href='{{ url_for('post_detail', category=category, post_id=post._id) }}'">
+            <div class="columns is-mobile">
+                <div class="column is-1">{{ post.order }}</div>
+                <div class="column is-2">{{ '익명' if post.is_anonymous else post.nickname }}</div>
+                <div class="column is-7">{{ post.title }}</div>
+            </div>
+        </div>
+        
+        {% endfor %}
+    </div>
+
+
+
+    <!-- 페이지 네비게이션 -->
+    <nav class="pagination is-centered" role="navigation" aria-label="pagination">
+        {% if current_page > 1 %}
+        <a class="pagination-previous" href="?page={{ current_page - 1 }}">이전</a>
+        {% else %}
+        <a class="pagination-previous" disabled>이전</a>
+        {% endif %}
+
+        {% if current_page < total_pages %} <a class="pagination-next" href="?page={{ current_page + 1 }}">다음</a>
+            {% else %}
+            <a class="pagination-next" disabled>다음</a>
+            {% endif %}
+
+            <ul class="pagination-list">
+                {% for page_num in page_range %}
+                <li>
+                    <a href="?page={{ page_num }}"
+                        class="pagination-link {% if page_num == current_page %} is-current {% endif %}">
+                        {{ page_num }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+    </nav>
+
+
+
+    <div class="field is-pulled-right">
+        <a href="/board/{{ category }}/write" class="button is-info" id="post-btn">글쓰기</a>
+    </div>
+
+
+    <!-- 검색창 -->
+    <!-- <div class="field has-addons">
+        <div class="control is-expanded">
+            <input class="input" type="text" id="search" placeholder="검색어를 입력하세요">
+        </div>
+        <div class="control">
+            <button class="button is-info" id="search-btn">
+                검색
+            </button>
+        </div>
+    </div> -->
+</div>
+
+{% endblock %}

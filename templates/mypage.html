@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}마이페이지{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="title">마이페이지</h1>
+
+    <div class="box">
+        <h2 class="subtitle">개인정보 수정</h2>
+        <form id="profile-update-form">
+            <div class="field">
+                <label class="label">새 닉네임</label>
+                <div class="control">
+                    <input class="input" type="text" id="nickname" placeholder="{{ user.nickname }}">
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">새 비밀번호</label>
+                <div class="control">
+                    <input class="input" type="password" id="password" placeholder="비밀번호 입력">
+                </div>
+            </div>
+
+            <button class="button is-primary is-fullwidth">수정하기</button>
+        </form>
+    </div>
+
+    <div class="box">
+        <h2 class="subtitle">내가 쓴 글</h2>
+        {% if posts %}
+        <ul>
+            {% for post in posts %}
+            <li>
+                <a href="{{ url_for('post_detail', category=post.category, post_id=post._id) }}">
+                    <strong>{{ post.title }}</strong>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>작성한 글이 없습니다.</p>
+        {% endif %}
+    </div>
+
+</div>
+
+<script>
+    $("#profile-update-form").on("submit", function (e) {
+        e.preventDefault();
+
+        let nickname = $("#nickname").val();
+        let password = $("#password").val();
+
+        let data = {};
+        if (nickname) data.nickname = nickname;
+        if (password) data.password = password;  // ✅ 비밀번호 입력 안 하면 안 보냄
+
+        $.ajax({
+            type: "POST",
+            url: "/mypage/update",
+            data: data,
+            success: function (response) {
+                alert(response.msg);
+                location.reload();
+            },
+            error: function (xhr) {
+                alert(xhr.responseJSON?.msg || "❌ 수정 실패!");
+            },
+        });
+    });
+</script>
+
+{% endblock %}
