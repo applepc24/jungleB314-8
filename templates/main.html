@@ -3,6 +3,17 @@ content %}
 <div class="container has-text-centered">
   <h1 class="title is-3">안녕하세요, {{ nickname }}님!</h1>
 
+  <div class="field has-addons">
+    <div class="control">
+      <input class="input" type="text" placeholder="Find a repository">
+    </div>
+    <div class="control">
+      <button class="button is-info">
+        Search
+      </button>
+    </div>
+  </div>
+
   <div class="buttons is-centered">
     <a href="/board/free" class="button is-light is-rounded">자유 게시판</a>
     <a href="/board/dev" class="button is-light is-rounded">개발 게시판</a>
@@ -15,7 +26,6 @@ content %}
 <script>
   $(document).ready(function () {
     console.log("메인 페이지 진입 완료!");
-    // window.location.href = "/main";
   });
 </script>
 {% endblock %}

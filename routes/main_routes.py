@@ -19,7 +19,3 @@ def main_page():
     nickname = user['nickname']
     return render_template('main.html', user=user['id'], nickname=nickname)
 
-@main_bp.route('/board/<category>', methods=['GET'])
-@jwt_required(locations=["cookies"])
-def board(category):
-    return f"{category} 게시판 페이지"
