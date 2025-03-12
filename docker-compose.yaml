@@ -1,0 +1,26 @@
+services:
+  caddy:
+    image: docker.io/caddy:2.9
+    privileged: true
+    volumes:
+      - ./caddy:/etc/caddy:ro
+    ports:
+      - 80:80
+      - 443:443
+  mongo:
+    image: docker.io/mongo:6
+    restart: always
+    privileged: true
+    volumes:
+      - ./data/mongo:/data/db
+
+  web:
+    build: .
+    restart: always
+    init: true
+    depends_on:
+      - mongo
+    environment:
+      MONGO_URL: mongodb://mongo
+    ports:
+      - 5001:5001

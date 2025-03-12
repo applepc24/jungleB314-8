@@ -1,0 +1,3 @@
+kommy.butter.moe {
+    reverse_proxy web:5001
+}
