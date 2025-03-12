@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}게시글{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="box">
+        <!-- 게시글 정보 -->
+        <div class="columns">
+            <div class="column is-1">
+                <span class="icon has-text-success">
+                    <i class="fas fa-comment-dots"></i>
+                </span>
+                <span class="has-text-success">#{{ post.category }}</span>
+            </div>
+            <div class="column">
+                <h1 class="title">{{ post.title }}</h1>
+            </div>
+        </div>
+
+        <!-- 게시글 내용 -->
+        <div class="content">
+            <p>{{ post.content }}</p>
+        </div>
+
+        <!-- 수정 & 삭제 버튼 -->
+        <div class="buttons">
+            <button class="button is-success">수정</button>
+            <button class="button is-danger">삭제</button>
+        </div>
+
+        <!-- 좋아요 & 조회수 -->
+        <div class="level">
+            <div class="level-left">
+                <span class="icon">
+                    <i class="fas fa-heart"></i>
+                </span>
+                <span>{{ post.likes }}</span>
+            </div>
+            <div class="level-right">
+                <span>조회수 {{ post.views }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 댓글 입력 -->
+    <div class="box">
+        <div class="field has-addons">
+            <div class="control is-expanded">
+                <input class="input" type="text" placeholder="댓글을 입력하세요" id="comment-input">
+            </div>
+            <div class="control">
+                <button class="button is-success" id="comment-btn">등록</button>
+            </div>
+        </div>
+        <label class="checkbox">
+            <input type="checkbox" id="anonymous-checkbox"> 익명
+        </label>
+    </div>
+
+    <!-- 댓글 목록 -->
+    <div class="box">
+        {% for comment in comments %}
+        <div class="media">
+            <div class="media-content">
+                <p>
+                    <strong>
+                        {% if comment.is_anonymous %}익명{% else %}{{ comment.nickname }}{% endif %}
+                    </strong>
+                    {{ comment.content }}
+                </p>
+            </div>
+            <div class="media-right">
+                <button class="button is-danger is-small">삭제</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
