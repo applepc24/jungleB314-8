@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}게시글 수정{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="box">
+        <h1 class="title">게시글 수정</h1>
+        <form action="{{ url_for('post.edit_post', category=category, post_id=post._id) }}" method="POST">
+            <div class="field">
+                <label class="label">제목</label>
+                <div class="control">
+                    <input class="input" type="text" name="title" value="{{ post.title }}" required>
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">내용</label>
+                <div class="control">
+                    <textarea class="textarea" name="content" required>{{ post.content }}</textarea>
+                </div>
+            </div>
+
+            <div class="control">
+                <button class="button is-success" type="submit">수정 완료</button>
+                <button class="button" type="button" onclick="history.back();">취소</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

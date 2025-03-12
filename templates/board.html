@@ -7,9 +7,9 @@
     <!-- 게시글 목록 -->
     <div id="post-list">
         {% for post in posts %}
-        <div class="box post-item" onclick="location.href='{{ url_for('post.post_detail', category=category, post_id=post._id) }}'">
+        <div class="box post-item" onclick="location.href=`{{ url_for('post.post_detail', category=category, post_id=post._id) }}`">
             <div class="columns is-mobile">
-                <div class="column is-1">{{ post.order }}</div>
+                <div class="column is-1">{{ post.index }}</div>
                 <div class="column is-2">{{ '익명' if post.is_anonymous else post.nickname }}</div>
                 <div class="column is-7">{{ post.title }}</div>
             </div>
@@ -53,7 +53,7 @@
 
 
     <!-- 검색창 -->
-    <!-- <div class="field has-addons">
+    <div class="field has-addons">
         <div class="control is-expanded">
             <input class="input" type="text" id="search" placeholder="검색어를 입력하세요">
         </div>
@@ -62,7 +62,7 @@
                 검색
             </button>
         </div>
-    </div> -->
+    </div>
 </div>
 
 {% endblock %}
