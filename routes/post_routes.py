@@ -58,8 +58,9 @@ def write_post(category):
 
    # ✅ 게시글 상세보기 라우트
 @post_bp.route('/board/<category>/post/<post_id>', methods=['GET'])
+@jwt_required(locations=["cookies"])
 def post_detail(category, post_id):
-    user_id = get_jwt_identity()
+    user_id = get_jwt_identity()  # ✅ 이제 JWT 값이 보장됨
     post = posts_collection.find_one({'_id': ObjectId(post_id)})
 
     if not post:
@@ -67,7 +68,6 @@ def post_detail(category, post_id):
         return redirect(url_for('board.board', category=category))
 
     return render_template('post.html', post=post, category=category, user_id=user_id)
-
 # 글 삭제
 @post_bp.route('/board/<category>/post/<post_id>/delete', methods=['POST'])
 @jwt_required(locations=["cookies"])
@@ -141,15 +141,15 @@ def add_comment(category, post_id):
 
     content = request.form.get('content')
     
-    # 'true' 또는 'false' 문자열을 Boolean 값으로 변환
+    # ✅ 체크박스 체크 상태를 명확히 처리
     is_anonymous = request.form.get('is_anonymous') == 'true'
 
     if not content:
         return jsonify({'msg': '댓글 내용을 입력해주세요.'}), 400
 
-    # 익명이면 닉네임 대신 '익명' 저장
-    user = posts_collection.find_one({'author_id': user_id})
-    nickname = "익명" if is_anonymous else user['nickname']
+    # ✅ 체크박스가 체크된 경우에만 익명으로 표시
+    user = users_collection.find_one({'_id': ObjectId(user_id)})
+    nickname = '익명' if is_anonymous else user['nickname']
 
     new_comment = {
         "_id": ObjectId(),
