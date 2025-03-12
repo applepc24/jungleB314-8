@@ -3,14 +3,23 @@ content %}
 <div class="container has-text-centered">
   <h1 class="title is-3">안녕하세요, {{ nickname }}님!</h1>
 
-  <div class="field has-addons">
-    <div class="control">
-      <input class="input" type="text" placeholder="Find a repository">
-    </div>
-    <div class="control">
-      <button class="button is-info">
-        Search
-      </button>
+  <div class="container mt-6 mb-6">
+    <div class="columns is-centered">
+      <div class="column is-half">
+        <div class="field has-addons">
+          <div class="control is-expanded">
+            <input
+              id="search-keyword"
+              class="input"
+              type="text"
+              placeholder="검색어를 입력하세요!!"
+            />
+          </div>
+          <div class="control">
+            <button id="search-btn" class="button is-info">검색</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -24,6 +33,31 @@ content %}
 </div>
 
 <script>
+  <!-- ✅ 검색 동작 스크립트 추가 -->
+  $(document).ready(function () {
+    console.log("메인 페이지 진입 완료!");
+
+    // 검색 버튼 클릭 시
+    $("#search-btn").on("click", function () {
+      const keyword = $("#search-keyword").val().trim();
+
+      if (!keyword) {
+        alert("검색어를 입력하세요!");
+        return;
+      }
+
+      // 검색 페이지로 이동
+      window.location.href = `/search?keyword=${encodeURIComponent(keyword)}`;
+    });
+
+    // 엔터 키로도 검색 가능
+    $("#search-keyword").on("keypress", function (e) {
+      if (e.which === 13) {
+        $("#search-btn").click();
+      }
+    });
+  });
+
   $(document).ready(function () {
     console.log("메인 페이지 진입 완료!");
   });
