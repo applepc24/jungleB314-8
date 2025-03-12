@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, request, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, request, jsonify, session
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from bson.objectid import ObjectId
 from pymongo import MongoClient
@@ -61,28 +61,33 @@ def write_post(category):
     # flash("게시글이 성공적으로 작성되었습니다.")
     # return redirect(url_for('board.board', category=category))
 
-   # ✅ 게시글 상세보기 라우트
+   # 게시글 상세보기 라우트
 @post_bp.route('/board/<category>/post/<post_id>', methods=['GET'], endpoint="post_detail")
 @jwt_required(locations=["cookies"])
 def post_detail(category, post_id):
-    user_id = get_jwt_identity()  # ✅ 이제 JWT 값이 보장됨
-    result = posts_collection.update_one({'_id': ObjectId(post_id)}, {"$inc": {"views": 1}})
-    
-    post = posts_collection.find_one({'_id': ObjectId(post_id)})
-
-
-    if not post:
-        flash("게시글을 찾을 수 없습니다.")
+    user_id = get_jwt_identity()
+    try:
+        post_oid = ObjectId(post_id)
+    except:
+        flash("잘못된 게시글 ID입니다.")
         return redirect(url_for('board.board', category=category))
 
-    post = posts_collection.find_one({'_id': ObjectId(post_id)})
+    post = posts_collection.find_one({'_id': post_oid})
+    if not post:
+        flash("게시글이 존재하지 않습니다.")
+        return redirect(url_for('board.board', category=category))
 
-    if post:
-        post['_id'] = str(post['_id'])  # ObjectId → 문자열 변환
+    # 쿼리 파라미터로 조회수 증가 처리
+    if request.args.get('view') == 'true':
+        viewed_posts = session.get('viewed_posts', [])
+        if post_id not in viewed_posts:
+            posts_collection.update_one({'_id': post_oid}, {'$inc': {'views': 1}})
+            viewed_posts.append(post_id)
+            session['viewed_posts'] = viewed_posts
 
-# post_routes.py (해당 뷰 함수 수정)
+    post['_id'] = str(post['_id'])
+
     return render_template('post.html', post=post, category=category, user_id=user_id, post_id=str(post["_id"]))
-
 
 
 # 글 삭제
@@ -219,27 +224,7 @@ def delete_comment(category, post_id, comment_id):
 
     return jsonify({'msg': '댓글이 삭제되었습니다.'}), 200
 
-#조회수
-# @post_bp.route('/board/<category>/post/<post_id>', methods=['GET'])
-# def view_post(category, post_id):
-#     try:
-#         post_oid = ObjectId(post_id)  # ObjectId로 변환
-#     except:
-#         return redirect(url_for('board', category=category))
 
-#     post = posts_collection.find_one({'_id': post_oid})
-
-#     if not post:
-#         return redirect(url_for('board', category=category))
-
-#     # 조회수 증가
-#     update_result = posts_collection.update_one({'_id': post_oid}, {"$inc": {"views": 1}})
-
-
-#     # 업데이트된 데이터를 다시 불러오기
-#     post = posts_collection.find_one({'_id': post_oid})
-
-#     return render_template('post.html', post=post, category=category)
 
 @post_bp.route('/board/<category>/post/<post_id>/like', methods=['POST'])
 @jwt_required(locations=["cookies"])
