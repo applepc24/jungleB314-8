@@ -38,7 +38,7 @@ def update_profile():
         update_data["nickname"] = new_nickname
 
     if new_password:
-        update_data["pw"] = new_password  # ❗ 비밀번호 해싱을 고려해야 함!
+        update_data["pw"] = new_password
 
     if update_data:
         users_collection.update_one({"_id": ObjectId(user_id)}, {"$set": update_data})
