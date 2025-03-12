@@ -2,12 +2,11 @@
 from flask import Blueprint, render_template, request, redirect, url_for, make_response
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from bson.objectid import ObjectId
-
-from models.user_model import users_collection
 from pymongo import MongoClient
 
 post_bp = Blueprint('post', __name__)
 
+from models.user_model import users_collection
 from models.post_model import posts_collection 
 
 # 글쓰기 페이지 렌더링
@@ -43,7 +42,7 @@ def write_post(category):
 
     return redirect(url_for('board.board', category=category))
 
-   # ✅ 게시글 상세보기 라우트
+   #  게시글 상세보기 라우트
 @post_bp.route('/board/<category>/post/<post_id>', methods=['GET'])
 def post_detail(category, post_id):
     post = posts_collection.find_one({'_id': ObjectId(post_id)})
