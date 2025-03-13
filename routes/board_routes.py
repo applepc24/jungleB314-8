@@ -26,7 +26,7 @@ def board(category):
 
     # ✅ 오래된 게시글이 1번이 되도록 오름차순 정렬
     posts = list(posts_collection.find(query)
-             .sort('created_at', 1)  # 오름차순 정렬 (오래된 글이 먼저)
+             .sort('created_at', -1)  # 오름차순 정렬 (오래된 글이 먼저)
              .skip((page - 1) * posts_per_page)
              .limit(posts_per_page))
 

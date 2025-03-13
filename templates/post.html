@@ -41,10 +41,9 @@
             <button class="button"
                 onclick="location.href=`{{ url_for('board.board', category=category) }}`">목록으로</button>
 
-
         </div>
 
-        <!-- 좋아요 & 조회수 -->
+        좋아요 & 조회수
         <!-- 좋아요 버튼 -->
         <div class="level">
             <div class="level-left">
@@ -143,34 +142,6 @@
                 });
             }
 
-             // 조회수 증가 처리
-            function increaseViewCount(category, postId) {
-                $.ajax({
-                    type: 'POST',
-                    url: `/board/${category}/post/${postId}/view`,
-                    success: function (response) {
-                        console.log(response.msg);
-                        if (response.views !== undefined) {
-                            // ✅ 조회수 실시간 갱신
-                            $('#view-count').text(response.views);
-                        }
-                    },
-                    error: function (xhr) {
-                        console.error(xhr.responseJSON.msg);
-                    }
-                });
-            }
-
-            // ✅ 클릭해서 들어왔을 때만 조회수 증가 (sessionStorage로 중복 방지)
-            $(document).ready(function () {
-                const category = "{{ category }}";
-                const postId = "{{ post._id }}";
-
-                if (sessionStorage.getItem(`viewed_${postId}`) === null) {
-                    increaseViewCount(category, postId);
-                    sessionStorage.setItem(`viewed_${postId}`, true);
-                }
-            });
         </script>
 
         

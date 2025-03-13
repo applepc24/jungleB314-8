@@ -13,16 +13,16 @@ from config import *
 # 앱 생성
 app = Flask(__name__)
 
-# ✅ 설정값 적용 (config.py에서 불러오기)
+# 설정값 적용 (config.py에서 불러오기)
 app.config.from_object('config')
 
-# ✅ JWT 설정 적용
+# JWT 설정 적용
 jwt = JWTManager(app)
 
-# ✅ CORS 설정 적용
+# CORS 설정 적용
 CORS(app)
 
-# ✅ Blueprint 등록
+# Blueprint 등록
 from routes import auth_bp, main_bp, mypage_bp, board_bp, post_bp
 app.register_blueprint(auth_bp)
 app.register_blueprint(main_bp)
