@@ -43,20 +43,7 @@
 
         </div>
 
-        좋아요 & 조회수
-        <!-- 좋아요 버튼 -->
-        <div class="level">
-            <div class="level-left">
-                <form action="{{ url_for('post.like_post', category=category, post_id=post._id) }}" method="POST">
-                    <button type="submit" class="button is-light">
-                        <span class="icon">
-                            <i class="fas fa-heart">♥</i>
-                        </span>
-                        <span>{{ post.likes }}</span>
-                    </button>
-                </form>
-            </div>
-        </div>
+        
 
 
         <div class="box">
@@ -132,7 +119,7 @@
                 $.ajax({
                     type: 'POST',
                     url: `{{ url_for('post.delete_comment', category=category, post_id=post._id, comment_id='COMMENT_ID') }}`.replace('COMMENT_ID', commentId),
-                    success: function (response) {
+                                        success: function (response) {
                         alert(response.msg);
                         location.reload(); // 페이지 새로고침
                     },

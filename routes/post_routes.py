@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from bson.objectid import ObjectId
 from datetime import datetime
@@ -159,14 +159,16 @@ def add_comment(category, post_id):
 
     nickname = "익명" if is_anonymous else user.get('nickname')
 
+    # ✅ 댓글에 명확히 '_id'를 추가
     new_comment = {
+        '_id': ObjectId(),  # ✅ 명확하게 ObjectId로 설정
         'content': content,
         'nickname': nickname,
         'user_id': user_id,
         'created_at': datetime.utcnow()
     }
 
-    # 댓글 추가
+    # ✅ 댓글 추가
     posts_collection.update_one(
         {'_id': ObjectId(post_id)},
         {'$push': {'comments': new_comment}}
@@ -180,19 +182,25 @@ def add_comment(category, post_id):
 def delete_comment(category, post_id, comment_id):
     user_id = get_jwt_identity()
 
-    # 게시글 가져오기
     post = posts_collection.find_one({'_id': ObjectId(post_id)})
     if not post:
         return jsonify({'msg': '게시글을 찾을 수 없습니다.'}), 404
 
-    # 댓글 가져오기
+    try:
+        comment_id = ObjectId(comment_id)
+    except:
+        return jsonify({'msg': '잘못된 댓글 ID입니다.'}), 400
+
+    # ✅ 댓글 가져오기 (get()으로 KeyError 방지)
     comments = post.get('comments', [])
-    updated_comments = [c for c in comments if c['_id'] != ObjectId(comment_id) or c['user_id'] != user_id]
 
-    if len(comments) == len(updated_comments):
-        return jsonify({'msg': '삭제 권한이 없습니다.'}), 403
+    # ✅ 댓글 삭제 (ID와 작성자 ID가 일치할 경우만 삭제)
+    updated_comments = [
+        c for c in comments 
+        if c.get('_id') != comment_id or c.get('user_id') != user_id
+    ]
 
-    # 댓글 업데이트
+    # ✅ 변경된 댓글 리스트로 업데이트
     posts_collection.update_one(
         {'_id': ObjectId(post_id)},
         {'$set': {'comments': updated_comments}}
